@@ -6,4 +6,8 @@ package com.codeagles.middleware.dynamic.thread.pool.sdk.config;
  * @description 动态配置入口
  */
 public class DynamicThreadPoolAutoConfig {
+
+    public void dynamicThreadPoolService() {
+
+    }
 }
