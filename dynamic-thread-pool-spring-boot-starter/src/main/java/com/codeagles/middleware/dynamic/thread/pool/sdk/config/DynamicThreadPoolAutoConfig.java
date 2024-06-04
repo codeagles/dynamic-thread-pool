@@ -3,8 +3,10 @@ package com.codeagles.middleware.dynamic.thread.pool.sdk.config;
 
 import com.alibaba.fastjson2.JSON;
 import com.codeagles.middleware.dynamic.thread.pool.sdk.domain.DynamicThreadPoolService;
+import com.codeagles.middleware.dynamic.thread.pool.sdk.domain.IDynamicThreadPoolService;
 import com.codeagles.middleware.dynamic.thread.pool.sdk.register.IRegistry;
 import com.codeagles.middleware.dynamic.thread.pool.sdk.register.redis.RedisRegistry;
+import com.codeagles.middleware.dynamic.thread.pool.sdk.trigger.job.ThreadPoolDataReportJob;
 import org.apache.commons.lang.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -16,6 +18,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +32,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 @Configuration
 @EnableConfigurationProperties(DynamicThreadPoolAutoProperties.class)
+@EnableScheduling
 public class DynamicThreadPoolAutoConfig {
 
     private final Logger logger = LoggerFactory.getLogger(DynamicThreadPoolAutoConfig.class);
@@ -77,5 +81,11 @@ public class DynamicThreadPoolAutoConfig {
 
     public IRegistry redisRegistry(RedissonClient redissonClient) {
         return new RedisRegistry(redissonClient);
+    }
+
+    @Bean
+    public ThreadPoolDataReportJob threadPoolDataReportJob(IDynamicThreadPoolService dynamicThreadPoolService, IRegistry registry) {
+        return new ThreadPoolDataReportJob(dynamicThreadPoolService, registry);
+
     }
 }
