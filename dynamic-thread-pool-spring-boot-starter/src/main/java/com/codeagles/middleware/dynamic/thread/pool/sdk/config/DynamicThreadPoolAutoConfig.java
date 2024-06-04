@@ -70,7 +70,9 @@ public class DynamicThreadPoolAutoConfig {
 
 
     @Bean("dynamicThreadPoolService")
-    public DynamicThreadPoolService dynamicThreadPoolService(ApplicationContext applicationContext, Map<String, ThreadPoolExecutor> threadPoolExecutorMap) {
+    public DynamicThreadPoolService dynamicThreadPoolService(ApplicationContext applicationContext,
+                                                             Map<String, ThreadPoolExecutor> threadPoolExecutorMap,
+                                                             RedissonClient redissonClient) {
         applicationName = applicationContext.getEnvironment().getProperty("spring.application.name");
 
         if (StringUtils.isBlank(applicationName)) {
@@ -79,6 +81,18 @@ public class DynamicThreadPoolAutoConfig {
         }
 
         logger.info("线程池信息：{}", JSON.toJSONString(threadPoolExecutorMap.keySet()));
+
+        //获取缓存数据，设置本地线程池配置
+        Set<String> threadPoolKeys = threadPoolExecutorMap.keySet();
+        for (String threadPoolKey : threadPoolKeys) {
+            ThreadPoolConfigEntity threadPoolConfigEntity = redissonClient.<ThreadPoolConfigEntity>getBucket(
+                    RegistryEnumVO.THREAD_POOL_CONFIG_PARAMETER_LIST_KEY.getKey() + "_" + applicationName + "_" + threadPoolKey)
+                    .get();
+            if (threadPoolConfigEntity == null) continue;
+            ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolKey);
+            threadPoolExecutor.setCorePoolSize(threadPoolConfigEntity.getCorePoolSize());
+            threadPoolExecutor.setMaximumPoolSize(threadPoolConfigEntity.getMaximumPoolSize());
+        }
 
         return new DynamicThreadPoolService(applicationName, threadPoolExecutorMap);
     }

@@ -1,5 +1,7 @@
 package com.codeagles.test;
 
+import com.codeagles.middleware.Application;
+import com.codeagles.middleware.dynamic.thread.pool.sdk.model.entity.ThreadPoolConfigEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +14,21 @@ import java.util.concurrent.CountDownLatch;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
 public class ApiTest {
+
+    @Resource
+    private RTopic dynamicThreadPoolRedisTopic;
+
+    @Test
+    public void test_dynamicThreadPoolRedisTopic() throws InterruptedException {
+        ThreadPoolConfigEntity threadPoolConfigEntity = new ThreadPoolConfigEntity("dynamic-thread-pool-test-app", "threadPoolExecutor01");
+        threadPoolConfigEntity.setPoolSize(100);
+        threadPoolConfigEntity.setMaximumPoolSize(100);
+        dynamicThreadPoolRedisTopic.publish(threadPoolConfigEntity);
+
+        new CountDownLatch(1).await();
+    }
 
 
 }
