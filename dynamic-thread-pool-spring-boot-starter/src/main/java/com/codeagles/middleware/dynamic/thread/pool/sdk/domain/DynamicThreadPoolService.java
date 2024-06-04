@@ -32,7 +32,7 @@ public class DynamicThreadPoolService implements IDynamicThreadPoolService{
         List<ThreadPoolConfigEntity> threadPoolConfigEntities = new ArrayList<ThreadPoolConfigEntity>(threadPoolBeanNames.size());
         for (String threadPoolBeanName : threadPoolBeanNames) {
             ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolBeanName);
-            ThreadPoolConfigEntity threadPoolConfigEntity = new ThreadPoolConfigEntity();
+            ThreadPoolConfigEntity threadPoolConfigEntity = new ThreadPoolConfigEntity(applicationName, threadPoolBeanName);
             threadPoolConfigEntity.setCorePoolSize(threadPoolExecutor.getCorePoolSize());
             threadPoolConfigEntity.setMaximumPoolSize(threadPoolExecutor.getMaximumPoolSize());
             threadPoolConfigEntity.setActiveCount(threadPoolExecutor.getActiveCount());
